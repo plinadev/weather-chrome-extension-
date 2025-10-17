@@ -44,6 +44,7 @@ export function getStoredOptions(): Promise<ILocalStorageOptions> {
       resolve(
         res.options ?? {
           tempScale: "imperial",
+          homeCity: "",
         }
       );
     });

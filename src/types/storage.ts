@@ -5,6 +5,7 @@ export interface ILocalStorage {
   options?: ILocalStorageOptions;
 }
 export interface ILocalStorageOptions {
+  homeCity: string;
   tempScale: OpenWeatherTempScale;
 }
 export type LocalStorageKeys = keyof ILocalStorage;

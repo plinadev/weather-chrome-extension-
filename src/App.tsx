@@ -52,7 +52,8 @@ export default function App() {
   };
 
   const handleTempScaleToggle = (scale: OpenWeatherTempScale) => {
-    const newOptions = { tempScale: scale };
+    if (!options) return;
+    const newOptions = { ...options, tempScale: scale };
     setOptions(newOptions);
     setStoredOptions(newOptions);
   };
@@ -88,6 +89,10 @@ export default function App() {
             currentScale={options?.tempScale}
             onToggle={handleTempScaleToggle}
           />
+        )}
+
+        {options?.homeCity && (
+          <WeatherCard city={options.homeCity} tempScale={options?.tempScale} />
         )}
         {cities.length === 0 ? (
           <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/30 text-center">
