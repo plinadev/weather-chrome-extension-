@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { fetchOpenWeatherData } from "../utils/api";
-import type { IOpenWeather } from "../types/weather";
+import type { IOpenWeather, OpenWeatherTempScale } from "../types/weather";
 import Loader from "./Loader";
 import Error from "./Error";
 
 function WeatherCard({
   city,
+  tempScale = "metric",
   onRemove,
 }: {
   city: string;
+  tempScale?: OpenWeatherTempScale;
   onRemove?: () => void;
 }) {
   const [weather, setWeather] = useState<IOpenWeather | null>(null);
@@ -20,7 +22,7 @@ function WeatherCard({
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchOpenWeatherData(city);
+        const data = await fetchOpenWeatherData(city, tempScale);
         setWeather(data);
       } catch (err) {
         console.error(err);
@@ -32,7 +34,7 @@ function WeatherCard({
     };
 
     fetchWeather();
-  }, [city]);
+  }, [city, tempScale]);
 
   const getWindDirection = (deg: number) => {
     const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];

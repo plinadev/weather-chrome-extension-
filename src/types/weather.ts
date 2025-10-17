@@ -19,3 +19,5 @@ export interface IOpenWeather {
     speed: number;
   };
 }
+
+export type OpenWeatherTempScale = "metric" | "imperial";

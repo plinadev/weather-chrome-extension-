@@ -1,4 +1,8 @@
-import type { ILocalStorage, LocalStorageKeys } from "../types/storage";
+import type {
+  ILocalStorage,
+  ILocalStorageOptions,
+  LocalStorageKeys,
+} from "../types/storage";
 
 export function setStoredCities(cities: string[]): Promise<void> {
   const vals: ILocalStorage = {
@@ -17,6 +21,31 @@ export function getStoredCities(): Promise<string[]> {
   return new Promise((resolve) => {
     chrome.storage.local.get(keys, (res: ILocalStorage) => {
       resolve(res.cities ?? []);
+    });
+  });
+}
+
+export function setStoredOptions(options: ILocalStorageOptions): Promise<void> {
+  const vals: ILocalStorage = {
+    options,
+  };
+  return new Promise((resolve) => {
+    chrome.storage.local.set(vals, () => {
+      resolve();
+    });
+  });
+}
+
+export function getStoredOptions(): Promise<ILocalStorageOptions> {
+  const keys: LocalStorageKeys[] = ["options"];
+
+  return new Promise((resolve) => {
+    chrome.storage.local.get(keys, (res: ILocalStorage) => {
+      resolve(
+        res.options ?? {
+          tempScale: "imperial",
+        }
+      );
     });
   });
 }

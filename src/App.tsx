@@ -1,21 +1,31 @@
 import { useEffect, useState } from "react";
 import WeatherCard from "./components/WeatherCard";
 import CitySearchInput from "./components/CitySearchInput";
-import { getStoredCities, setStoredCities } from "./utils/storage";
+import {
+  getStoredCities,
+  getStoredOptions,
+  setStoredCities,
+  setStoredOptions,
+} from "./utils/storage";
 import Loader from "./components/Loader";
 import Error from "./components/Error";
+import type { ILocalStorageOptions } from "./types/storage";
+import type { OpenWeatherTempScale } from "./types/weather";
+import TempScaleToggle from "./components/TempScaleToggle";
 
 export default function App() {
   const [cities, setCities] = useState<string[]>([]);
+  const [options, setOptions] = useState<ILocalStorageOptions | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
-    const fetchCities = async () => {
+    const fetchStorage = async () => {
       try {
         setLoading(true);
         const data = await getStoredCities();
+        const options = await getStoredOptions();
         setCities(data);
+        setOptions(options);
       } catch (err) {
         console.error(err);
         setError("Failed to get stored cities");
@@ -24,8 +34,9 @@ export default function App() {
       }
     };
 
-    fetchCities();
+    fetchStorage();
   }, []);
+
   const handleAddCity = (city: string) => {
     if (!cities.some((c) => c.toLowerCase() === city.toLowerCase())) {
       const updatedCitiesArr = [city, ...cities];
@@ -40,6 +51,11 @@ export default function App() {
     setStoredCities(updatedCitiesArr);
   };
 
+  const handleTempScaleToggle = (scale: OpenWeatherTempScale) => {
+    const newOptions = { tempScale: scale };
+    setOptions(newOptions);
+    setStoredOptions(newOptions);
+  };
   if (loading) {
     return <Loader />;
   }
@@ -67,6 +83,12 @@ export default function App() {
 
         <CitySearchInput onAddCity={handleAddCity} />
 
+        {options && (
+          <TempScaleToggle
+            currentScale={options?.tempScale}
+            onToggle={handleTempScaleToggle}
+          />
+        )}
         {cities.length === 0 ? (
           <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/30 text-center">
             <p className="text-white/70 text-lg">No cities added yet.</p>
@@ -79,6 +101,7 @@ export default function App() {
             <WeatherCard
               key={`${city}-${index}`}
               city={city}
+              tempScale={options?.tempScale}
               onRemove={() => handleRemoveCity(index)}
             />
           ))
