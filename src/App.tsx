@@ -1,19 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WeatherCard from "./components/WeatherCard";
 import CitySearchInput from "./components/CitySearchInput";
+import { getStoredCities, setStoredCities } from "./utils/storage";
+import Loader from "./components/Loader";
+import Error from "./components/Error";
 
 export default function App() {
-  const [cities, setCities] = useState<string[]>(["Kyiv", "Kharkiv", "Lviv"]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        setLoading(true);
+        const data = await getStoredCities();
+        setCities(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to get stored cities");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
   const handleAddCity = (city: string) => {
     if (!cities.some((c) => c.toLowerCase() === city.toLowerCase())) {
-      setCities([city, ...cities]);
+      const updatedCitiesArr = [city, ...cities];
+      setCities(updatedCitiesArr);
+      setStoredCities(updatedCitiesArr);
     }
   };
 
   const handleRemoveCity = (index: number) => {
-    setCities(cities.filter((_, i) => i !== index));
+    const updatedCitiesArr = cities.filter((_, i) => i !== index);
+    setCities(updatedCitiesArr);
+    setStoredCities(updatedCitiesArr);
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return <Error error={error} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-purple-600 p-4">
       <div className="min-w-md mx-auto space-y-4">
